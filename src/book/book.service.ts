@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import { Book } from './schema/book.schema';
 import { InjectModel } from '@nestjs/mongoose';
@@ -35,6 +35,12 @@ export class BookService {
     }
 
     async findById(id: string): Promise<Book | null> {
+
+        const isValidId = mongoose.Types.ObjectId.isValid(id);
+        if(!isValidId){
+            throw new BadRequestException(`Please provide a valid Book ID`);
+        }
+
         // .exec() returns a real Promise instead of a Mongoose "thenable".
         const book = await this.bookModel.findById(id).exec();
 
