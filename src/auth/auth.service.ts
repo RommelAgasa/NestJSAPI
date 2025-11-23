@@ -16,7 +16,7 @@ export class AuthService {
     ){}
 
     async signUp(signUpDto: SignUpDto): Promise<{token: string; message: string; user: User}> {
-        const { name, email, password } = signUpDto;
+        const { name, email, password, role} = signUpDto;
 
         // Hash password -> run this command
         // npm i bcryptjs --save
@@ -25,7 +25,8 @@ export class AuthService {
         const user = await this.userModel.create({
             name,
             email,
-            password: hashPassword
+            password: hashPassword,
+            role
         });
 
         const token = this.jwtService.sign({ id: user._id, email: user.email });
