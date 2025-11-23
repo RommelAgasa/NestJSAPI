@@ -1,0 +1,3 @@
+npm uninstall eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser
+
+Then close the VS code and reopen
