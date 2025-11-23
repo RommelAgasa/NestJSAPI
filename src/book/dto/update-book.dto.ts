@@ -1,5 +1,6 @@
-import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsEmpty, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { Category } from "../schema/book.schema";
+import { User } from "src/auth/schema/user.schema";
 
 export class UpdateBookDto {
     @IsOptional()
@@ -21,4 +22,7 @@ export class UpdateBookDto {
     @IsOptional()
     @IsEnum(Category, { message: 'Category must be either Fiction, NonFiction, Science, History, Biography' })
     readonly category: Category;
+
+    @IsEmpty({ message: 'User field cannot be set manually.' })
+    readonly user: User;
 }

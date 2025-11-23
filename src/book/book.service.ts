@@ -4,6 +4,7 @@ import { Book } from './schema/book.schema';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { Query } from 'express-serve-static-core';
+import { User } from 'src/auth/schema/user.schema';
 
 @Injectable()
 export class BookService {
@@ -29,8 +30,9 @@ export class BookService {
         };
     }
 
-    async create(book: Book): Promise<Book>{
-        const res = await this.bookModel.create(book);
+    async create(book: Book, user: User): Promise<Book>{
+        const data = Object.assign(book, { user: user._id }); // where _id came from? Extend user schema to Document to have _id and import { Document } from 'mongoose';
+        const res = await this.bookModel.create(data);
         return res;
     }
 

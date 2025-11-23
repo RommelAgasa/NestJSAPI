@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { BookService } from './book.service';
 import { Book } from './schema/book.schema';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 
 import type { Query as ExpressQuery } from 'express-serve-static-core';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('books')
 export class BookController {
@@ -15,7 +16,7 @@ export class BookController {
         // console.log('Query Params:', query);
 
         // Pagination
-        const resPage = 2; // results per page
+        const resPage = 5; // results per page
         const currentPage = Number(query.page) || 1;
         const skip = resPage * (currentPage - 1);
 
@@ -30,12 +31,15 @@ export class BookController {
         return this.bookService.findAll({ ...keyword }, resPage, skip);
     }
 
-    @Post('new') // books/new
+    @Post() // books/new
+    @UseGuards(AuthGuard())
     async createBook(
         @Body()
-        book: CreateBookDto
+        book: CreateBookDto,
+        @Req() req
     ): Promise<Book>{
-        return this.bookService.create(book);
+        // console.log(req.user);
+        return this.bookService.create(book, req.user);
     }
 
     @Get(':id')
@@ -47,6 +51,7 @@ export class BookController {
     }
 
     @Put(':id')
+    @UseGuards(AuthGuard())
     async updateBook(
         @Param('id')
         id: string,
@@ -58,6 +63,7 @@ export class BookController {
     
 
     @Delete(':id')
+    @UseGuards(AuthGuard())
     async deleteBook(
         @Param('id')
         id: string
