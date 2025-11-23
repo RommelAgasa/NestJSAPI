@@ -1,16 +1,33 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { BookService } from './book.service';
 import { Book } from './schema/book.schema';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+
+import type { Query as ExpressQuery } from 'express-serve-static-core';
 
 @Controller('books')
 export class BookController {
     constructor(private bookService: BookService){}
 
     @Get()
-    async getAllBooks(): Promise<Book[]>{
-        return this.bookService.findAll();
+    async getAllBooks(@Query() query: ExpressQuery): Promise<Book[]>{
+        // console.log('Query Params:', query);
+
+        // Pagination
+        const resPage = 2; // results per page
+        const currentPage = Number(query.page) || 1;
+        const skip = resPage * (currentPage - 1);
+
+        // Filtering by keyword
+        const keyword = query.keyword ? {
+            title: {
+                $regex: query.keyword,
+                $options: 'i' // case insensitive
+            }
+        } : {};
+
+        return this.bookService.findAll({ ...keyword }, resPage, skip);
     }
 
     @Post('new') // books/new

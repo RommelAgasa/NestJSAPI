@@ -3,6 +3,8 @@ import * as mongoose from 'mongoose';
 import { Book } from './schema/book.schema';
 import { InjectModel } from '@nestjs/mongoose';
 
+import { Query } from 'express-serve-static-core';
+
 @Injectable()
 export class BookService {
     constructor(
@@ -11,9 +13,20 @@ export class BookService {
         private bookModel: mongoose.Model<Book>
     ){}
 
-    async findAll(): Promise<Book[]>{
-        const books = await this.bookModel.find();
-        return books;
+    async findAll(query: Query, resPage: number, skip: number): Promise<any>{
+        const total = await this.bookModel.countDocuments(query).exec();
+        const books = await this.bookModel
+            .find(query)
+            .limit(resPage)
+            .skip(skip)
+            .exec();
+
+        return {
+            total,
+            currentPage: skip / resPage + 1,
+            totalPages: Math.ceil(total / resPage),
+            books,
+        };
     }
 
     async create(book: Book): Promise<Book>{
